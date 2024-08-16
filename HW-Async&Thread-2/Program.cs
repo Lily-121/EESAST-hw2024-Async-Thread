@@ -77,7 +77,7 @@ public class TimeVariable(int initVal = 0, int lowerLimit = 0, int higherLimit =
     /// 思考：如何利用计时起点来完成变量值的更新？
     /// </summary>
     int time = Environment.TickCount;
-    int t,p;
+    int t, p;
 
     int speed = initSpeed;
     ReaderWriterLockSlim splock = new();
