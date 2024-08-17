@@ -103,12 +103,7 @@ public class TimeVariable(int initVal = 0, int lowerLimit = 0, int higherLimit =
             splock.EnterWriteLock();
             try
             {
-                t = Environment.TickCount;
-                p = val + (t - time) * speed;
-                time = t;
-                if (p > HigherLimit) val = HigherLimit;
-                else if (p < LowerLimit) val = LowerLimit;
-                else val = p;
+                setv();
                 speed = value;
             }
             finally { splock.ExitWriteLock(); }
@@ -129,12 +124,7 @@ public class TimeVariable(int initVal = 0, int lowerLimit = 0, int higherLimit =
             vlock.EnterReadLock();
             try
             {
-                t = Environment.TickCount;
-                p = val + (t - time) * speed;
-                time = t;
-                if (p > HigherLimit) val = HigherLimit;
-                else if (p < LowerLimit) val = LowerLimit;
-                else val = p;
+                setv();
                 return val;
             }
             finally { vlock.ExitReadLock(); }
@@ -148,6 +138,19 @@ public class TimeVariable(int initVal = 0, int lowerLimit = 0, int higherLimit =
                 val = value;
             }
             finally { vlock.ExitWriteLock(); }
+        }
+    }
+    private readonly object setvLock = new();
+    private void setv()
+    {
+        lock (setvLock)
+        {
+            t = Environment.TickCount;
+            p = val + (t - time) * speed;
+            if (p > HigherLimit) val = HigherLimit;
+            else if (p < LowerLimit) val = LowerLimit;
+            else val = p;
+            time = t;
         }
     }
 }
